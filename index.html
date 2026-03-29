@@ -1,62 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Gourdin Translator</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background-color: #111;
-  color: #eee;
-  padding: 40px;
-}
-textarea {
-  width: 100%;
-  height: 100px;
-  margin-bottom: 10px;
-  font-size: 18px;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  background: #222;
-  color: #eee;
-}
-button {
-  padding: 10px 20px;
-  font-size: 18px;
-  cursor: pointer;
-  border: none;
-  border-radius: 6px;
-  background: #444;
-  color: #eee;
-}
-#output {
-  margin-top: 20px;
-  font-size: 22px;
-}
-#pro {
-  margin-top: 10px;
-  color: #aaa;
-  font-style: italic;
-}
-</style>
-</head>
-<body>
-
-<h1>🎃 Gourdin Translator</h1>
-<textarea id="input" placeholder="Type anything..."></textarea>
-<br>
-<button onclick="translate()">Translate</button>
-
-<div id="outputSection">
-  <div id="output"></div>
-  <div id="pro"></div>
-</div>
-
 <script>
-// ---------------------------
-// LETTER MAPPING
-// ---------------------------
+// Letter → Gourdin mapping
 const letterMap = {
   a:"g", b:"t", c:"r", d:"v", e:"e", f:"th", g:"o",
   h:"h", i:"i", j:"j", k:"k", l:"l", m:"m", n:"n",
@@ -64,42 +7,56 @@ const letterMap = {
   u:"oo", v:"ve", w:"w", x:"x", y:"y", z:"z"
 };
 
-// ---------------------------
-// Convert a word
-// ---------------------------
+// Convert a single word
 function convertWord(word) {
   return word.split("").map(l => letterMap[l] || l).join("");
 }
 
-// ---------------------------
-// Pronunciation helper
-// ---------------------------
-function pronounce(text) {
-  return text.toUpperCase().replace(/(.{2,3})/g, "$1-");
-}
-
-// ---------------------------
-// Translate function (called by button)
-// ---------------------------
+// Global translate function
 function translate() {
-  const inputEl = document.getElementById("input");
-  const outputEl = document.getElementById("output");
-  const proEl = document.getElementById("pro");
+  const inputEl = document.getElementById('input');
+  const outputEl = document.getElementById('gourdinText');
+  const outputSection = document.getElementById('outputSection');
+  const proEl = document.getElementById('proText');
 
-  if (!inputEl || !outputEl || !proEl) return;
+  if (!inputEl || !outputEl) return;
 
   const input = inputEl.value.toLowerCase();
 
-  // split into words and convert
+  // Convert all words
   const result = input
     .split(/\s+/)
     .map(convertWord)
     .join(" · ");
 
   outputEl.textContent = result;
-  proEl.textContent = pronounce(result);
-}
-</script>
 
-</body>
-</html>
+  // Pronunciation helper
+  if (proEl) proEl.textContent = result.toUpperCase().replace(/(.{2,3})/g, "$1-");
+
+  // Show output
+  if (outputSection) outputSection.classList.add('visible');
+}
+
+// Clear input/output
+function clearAll() {
+  const inputEl = document.getElementById('input');
+  const outputSection = document.getElementById('outputSection');
+  if (inputEl) inputEl.value = '';
+  if (outputSection) outputSection.classList.remove('visible');
+}
+
+// Example phrases
+function setEx(text) {
+  const inputEl = document.getElementById('input');
+  if (inputEl) {
+    inputEl.value = text;
+    inputEl.focus();
+  }
+}
+
+// Enter key triggers translate
+document.getElementById('input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') translate();
+});
+</script>
