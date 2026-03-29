@@ -1,67 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Gourdin Translator</title>
-<style>
-body { font-family: Arial; background:#111; color:#eee; padding:40px; }
-textarea { width:100%; height:100px; margin-bottom:10px; }
-button { padding:10px 20px; cursor:pointer; }
-#output { margin-top:20px; font-size:22px; }
-#pro { margin-top:10px; color:#aaa; font-style:italic; }
-</style>
-</head>
-<body>
-
-<h1>🎃 Gourdin Translator (True Language)</h1>
-
-<textarea id="input" placeholder="Type anything..."></textarea>
-<br>
-<button id="translateBtn">Translate</button>
-
-<div id="output"></div>
-<div id="pro"></div>
-
 <script>
-// LETTER → GOURDIN MAP
+// SIMPLE LETTER MAP (edit this however you want)
 const map = {
-  a:"ga", b:"ta", c:"ra", d:"va", e:"el", f:"th", g:"go",
-  h:"ho", i:"ae", j:"ja", k:"ka", l:"la", m:"ma", n:"na",
-  o:"ou", p:"pa", q:"qua", r:"rael", s:"sa", t:"tael",
-  u:"oo", v:"vae", w:"wo", x:"xa", y:"yae", z:"za"
+  a:"g", b:"t", c:"r", d:"v", e:"e", f:"th", g:"o",
+  h:"h", i:"i", j:"j", k:"k", l:"l", m:"m", n:"n",
+  o:"u", p:"p", q:"q", r:"ra", s:"s", t:"ta",
+  u:"oo", v:"ve", w:"w", x:"x", y:"y", z:"z"
 };
 
-// convert word
+// convert ONE word
 function convertWord(word) {
-  return word.split("").map(l => map[l] || "").join("");
+  return word.split("").map(letter => map[letter] || letter).join("");
 }
 
-// pronunciation (simple)
-function pronounce(text) {
-  return text.toUpperCase().replace(/(.{3})/g, "$1-");
-}
-
-// translate sentence
+// MAIN TRANSLATE FUNCTION (GLOBAL = IMPORTANT)
 window.translate = function() {
   const input = document.getElementById("input").value.toLowerCase();
-  const words = input.split(/\s+/);
 
-  const converted = words.map(w => convertWord(w));
+  const result = input
+    .split(/\s+/)
+    .map(word => convertWord(word))
+    .join(" · ");
 
-  // Gourdin grammar style (Object · Verb · Subject feel)
-  let result = converted.reverse().join(" · ");
+  document.getElementById("gourdinText").innerText = result;
 
-  document.getElementById("output").innerText = result;
-  document.getElementById("pro").innerText = pronounce(result);
+  // show output section if you have one
+  const outputSection = document.getElementById("outputSection");
+  if (outputSection) outputSection.classList.add("visible");
 };
 
-// events
-document.getElementById("translateBtn").addEventListener("click", translate);
+// FIX BUTTON (NO onclick needed)
+document.getElementById("translateBtn").addEventListener("click", window.translate);
 
+// ENTER KEY
 document.getElementById("input").addEventListener("keydown", e => {
-  if (e.key === "Enter") translate();
+  if (e.key === "Enter") window.translate();
 });
 </script>
-
-</body>
-</html>
