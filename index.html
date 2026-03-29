@@ -1,37 +1,42 @@
 <script>
-alert("NEW VERSION LOADED");
+alert("WORKING VERSION");
 
-document.addEventListener("DOMContentLoaded", () => {
+const map = {
+  a:"g", b:"t", c:"r", d:"v", e:"e", f:"th", g:"o",
+  h:"h", i:"i", j:"j", k:"k", l:"l", m:"m", n:"n",
+  o:"u", p:"p", q:"q", r:"ra", s:"s", t:"ta",
+  u:"oo", v:"ve", w:"w", x:"x", y:"y", z:"z"
+};
 
-  const map = {
-    a:"g", b:"t", c:"r", d:"v", e:"e", f:"th", g:"o",
-    h:"h", i:"i", j:"j", k:"k", l:"l", m:"m", n:"n",
-    o:"u", p:"p", q:"q", r:"ra", s:"s", t:"ta",
-    u:"oo", v:"ve", w:"w", x:"x", y:"y", z:"z"
-  };
+function convertWord(word) {
+  return word.split("").map(l => map[l] || l).join("");
+}
 
-  function convertWord(word) {
-    return word.split("").map(l => map[l] || l).join("");
+// 👇 THIS is what your button calls
+window.translate = function() {
+  const inputEl = document.getElementById("input");
+  const outputEl = document.getElementById("gourdinText");
+
+  if (!inputEl || !outputEl) {
+    console.error("Missing elements");
+    return;
   }
 
-  window.translate = function() {
-    const input = document.getElementById("input").value.toLowerCase();
+  const input = inputEl.value.toLowerCase();
 
-    const result = input
-      .split(/\s+/)
-      .map(convertWord)
-      .join(" · ");
+  const result = input
+    .split(/\s+/)
+    .map(convertWord)
+    .join(" · ");
 
-    document.getElementById("gourdinText").innerText = result;
+  outputEl.innerText = result;
 
-    const outputSection = document.getElementById("outputSection");
-    if (outputSection) outputSection.classList.add("visible");
-  };
+  const outputSection = document.getElementById("outputSection");
+  if (outputSection) outputSection.classList.add("visible");
+};
 
-  const btn = document.getElementById("translateBtn");
-  if (btn) {
-    btn.addEventListener("click", window.translate);
-  }
-
+// ENTER KEY (optional)
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter") window.translate();
 });
 </script>
