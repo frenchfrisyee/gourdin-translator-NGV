@@ -13,7 +13,7 @@ button { padding:10px 20px; cursor:pointer; }
 </head>
 <body>
 
-<h1>🎃 Gourdin Translator (Full Language)</h1>
+<h1>🎃 Gourdin Translator (True Language)</h1>
 
 <textarea id="input" placeholder="Type anything..."></textarea>
 <br>
@@ -23,70 +23,33 @@ button { padding:10px 20px; cursor:pointer; }
 <div id="pro"></div>
 
 <script>
-// CORE VOCAB (kept)
-const core = {
-  "i":"mael",
-  "you":"vael",
-  "we":"maelou",
-  "pumpkin":"vourath",
-  "seed":"toumel",
-  "field":"ouvra",
-  "sun":"hovel",
-  "harvest":"goumen"
+// LETTER → GOURDIN MAP
+const map = {
+  a:"ga", b:"ta", c:"ra", d:"va", e:"el", f:"th", g:"go",
+  h:"ho", i:"ae", j:"ja", k:"ka", l:"la", m:"ma", n:"na",
+  o:"ou", p:"pa", q:"qua", r:"rael", s:"sa", t:"tael",
+  u:"oo", v:"vae", w:"wo", x:"xa", y:"yae", z:"za"
 };
 
-// verb endings
-const verbEnd = "avel";
-
-// syllables for generating language
-const consonants = ["v","l","r","m","n","th","g","h"];
-const vowels = ["ou","ae","oa","el","oo"];
-
-// make fake gourdin word
-function makeWord(word) {
-  if (core[word]) return core[word];
-
-  let syllables = Math.min(3, Math.max(1, Math.ceil(word.length / 3)));
-  let result = "";
-
-  for (let i = 0; i < syllables; i++) {
-    const c = consonants[Math.floor(Math.random()*consonants.length)];
-    const v = vowels[Math.floor(Math.random()*vowels.length)];
-    result += c + v;
-  }
-
-  return result;
+// convert word
+function convertWord(word) {
+  return word.split("").map(l => map[l] || "").join("");
 }
 
-// pronunciation generator
-function pronounce(g) {
-  return g.toUpperCase().replace(/([A-Z]{2,})/g, "$1-");
+// pronunciation (simple)
+function pronounce(text) {
+  return text.toUpperCase().replace(/(.{3})/g, "$1-");
 }
 
-// basic sentence parser
+// translate sentence
 window.translate = function() {
   const input = document.getElementById("input").value.toLowerCase();
   const words = input.split(/\s+/);
 
-  let subject = "";
-  let verb = "";
-  let object = "";
+  const converted = words.map(w => convertWord(w));
 
-  words.forEach(w => {
-    if (["i","you","we"].includes(w)) {
-      subject = makeWord(w);
-    } else if (w.endsWith("ing") || w.endsWith("ed")) {
-      verb = makeWord(w.replace(/ing|ed/g,"")) + "-" + verbEnd;
-    } else if (!verb) {
-      object = makeWord(w);
-    }
-  });
-
-  // fallback
-  if (!subject && words.length) subject = makeWord(words[0]);
-
-  let result = `${object} · ${verb || makeWord("be")+"-"+verbEnd} · ${subject}`;
-  result = result.replace(/^ ·|· $/g,"");
+  // Gourdin grammar style (Object · Verb · Subject feel)
+  let result = converted.reverse().join(" · ");
 
   document.getElementById("output").innerText = result;
   document.getElementById("pro").innerText = pronounce(result);
