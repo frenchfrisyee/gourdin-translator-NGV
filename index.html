@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gourdin Translator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pumpkin: #E8650A;
+    --ember: #C44B00;
+    --gold: #F5A623;
+    --gold-dim: #A07A30;
+    --cream: #FDF4E3;
+    --dark: #130800;
+    --panel: #1C0C00;
+    --border: rgba(232,101,10,0.22);
+    --muted: #9A7050;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    background-image:
+      radial-gradient(ellipse at 15% 40%, rgba(196,75,0,0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 15%, rgba(245,166,35,0.05) 0%, transparent 45%);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    color: var(--cream);
+    padding: 44px 20px 80px;
+  }
+
+  .page { max-width: 760px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 48px; }
+
+  .logo {
+    font-size: 56px;
+    display: block;
+    margin-bottom: 14px;
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 58px;
+    color: var(--pumpkin);
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 8px;
+    text-shadow: 0 0 50px rgba(232,101,10,0.35);
+  }
+
+  .tagline {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--gold-dim);
+    font-size: 18px;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 38px 44px;
+    margin-bottom: 18px;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.55), inset 0 1px 0 rgba(245,166,35,0.07);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--pumpkin), var(--gold), var(--pumpkin), transparent);
+    opacity: 0.55;
+  }
+
+  .label {
+    font-family: 'Playfair Display', serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .label::after { content:''; flex:1; height:1px; background:rgba(232,101,10,0.13); }
+
+  textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.28);
+    border: 1px solid rgba(232,101,10,0.18);
+    border-radius: 11px;
+    padding: 18px 20px;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 20px;
+    color: var(--cream);
+    line-height: 1.65;
+    resize: vertical;
+    min-height: 110px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    caret-color: var(--pumpkin);
+  }
+  textarea::placeholder { color: rgba(154,112,80,0.38); font-style: italic; }
+  textarea:focus { border-color: rgba(232,101,10,0.48); box-shadow: 0 0 0 3px rgba(232,101,10,0.08); }
+
+  .btn-row { display:flex; gap:10px; justify-content:center; margin: 22px 0 6px; }
+
+  .btn-primary {
+    background: var(--pumpkin);
+    color: var(--dark);
+    border: none;
+    border-radius: 11px;
+    padding: 14px 46px;
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 22px rgba(232,101,10,0.32);
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.3px;
+  }
+  .btn-primary::before { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(255,255,255,0.12) 0%,transparent 100%); }
+  .btn-primary:hover { background:var(--ember); transform:translateY(-2px); box-shadow:0 8px 30px rgba(232,101,10,0.42); }
+  .btn-primary:active { transform:translateY(0); }
+  .btn-primary:disabled { opacity:0.5; cursor:not-allowed; transform:none !important; }
+
+  .btn-secondary {
+    background: rgba(232,101,10,0.09);
+    color: var(--muted);
+    border: 1px solid rgba(232,101,10,0.2);
+    border-radius: 11px;
+    padding: 14px 22px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background:rgba(232,101,10,0.17); color:var(--cream); }
+
+  .output-section {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+  .output-section.visible { opacity:1; transform:translateY(0); pointer-events:all; }
+
+  .output-box {
+    background: rgba(232,101,10,0.055);
+    border: 1px solid rgba(232,101,10,0.2);
+    border-radius: 11px;
+    padding: 22px 26px;
+    min-height: 90px;
+    position: relative;
+  }
+
+  .gourdin-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: var(--cream);
+    line-height: 1.65;
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+
+  .pronunciation {
+    margin-top: 14px;
+    padding-top: 13px;
+    border-top: 1px solid rgba(232,101,10,0.12);
+  }
+  .pro-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(154,112,80,0.6);
+    display: block;
+    margin-bottom: 5px;
+  }
+  .pro-text {
+    color: rgba(245,166,35,0.8);
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .word-breakdown {
+    margin-top: 14px;
+    padding-top: 13px;
+    border-top: 1px solid rgba(232,101,10,0.12);
+  }
+  .breakdown-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(154,112,80,0.6);
+    margin-bottom: 10px;
+    display: block;
+  }
+  .breakdown-chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip {
+    background: rgba(0,0,0,0.22);
+    border: 1px solid rgba(232,101,10,0.14);
+    border-radius: 8px;
+    padding: 7px 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .chip-gourdin { font-family:'Playfair Display',serif; font-size:16px; color:var(--cream); font-style:italic; }
+  .chip-english { font-size:11px; color:var(--muted); letter-spacing:0.5px; }
+  .chip-pro { font-size:11px; color:rgba(245,166,35,0.55); font-style:italic; }
+
+  .translation-note {
+    margin-top: 13px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(232,101,10,0.1);
+    font-size: 14px;
+    color: rgba(154,112,80,0.65);
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 11px; right: 11px;
+    background: rgba(232,101,10,0.1);
+    border: 1px solid rgba(232,101,10,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Crimson Pro', serif;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { color:var(--gold); background:rgba(232,101,10,0.18); }
+
+  .loading { display:none; align-items:center; gap:7px; padding:10px 0; }
+  .loading.active { display:flex; }
+  .dot { width:7px; height:7px; border-radius:50%; background:var(--pumpkin); animation:pulse 1.2s ease-in-out infinite; }
+  .dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
+  @keyframes pulse{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
+
+  .examples { margin-top: 26px; }
+  .examples-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(154,112,80,0.5);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .pills { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .pill {
+    background: rgba(232,101,10,0.07);
+    border: 1px solid rgba(232,101,10,0.16);
+    border-radius: 20px;
+    padding: 7px 15px;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-style: italic;
+  }
+  .pill:hover { background:rgba(232,101,10,0.16); border-color:var(--pumpkin); color:var(--cream); }
+
+  .error-text { color:#E05555; font-style:italic; font-size:17px; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 5px;
+  }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .tab.active { background: var(--pumpkin); color: var(--dark); font-weight: 700; }
+  .tab:hover:not(.active) { color: var(--cream); }
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  /* PHRASEBOOK */
+  .phrase-grid { display:flex; flex-direction:column; gap:11px; margin-top:6px; }
+  .phrase-card {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(232,101,10,0.12);
+    border-radius: 10px;
+    padding: 14px 18px;
+    transition: border-color 0.15s;
+  }
+  .phrase-card:hover { border-color:rgba(232,101,10,0.3); }
+  .phrase-english { font-size: 13px; color:var(--muted); margin-bottom:4px; letter-spacing:0.3px; }
+  .phrase-gourdin { font-family:'Playfair Display',serif; font-size:20px; color:var(--cream); font-style:italic; margin-bottom:4px; }
+  .phrase-pro { font-size: 13px; color:rgba(245,166,35,0.6); font-style:italic; }
+
+  /* PRONUNCIATION KEY */
+  .pro-key { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-top:6px; }
+  .pro-key-item {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(232,101,10,0.1);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .pro-key-sym { font-family:'Playfair Display',serif; font-size:20px; color:var(--pumpkin); font-style:italic; min-width:36px; }
+  .pro-key-desc { font-size:14px; color:var(--muted); line-height:1.4; }
+  .pro-key-ex { font-size:12px; color:rgba(154,112,80,0.55); font-style:italic; display:block; margin-top:2px; }
+
+  h2 { font-family:'Playfair Display',serif; font-size:18px; color:var(--gold-dim); margin-bottom:18px; font-style:italic; font-weight:400; }
+
+  .footer-note { text-align:center; margin-top:28px; font-size:13px; color:rgba(154,112,80,0.3); font-style:italic; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <span class="logo">🎃</span>
+    <h1>Gourdin</h1>
+    <div class="tagline">Speak the language of the Gourd-kin</div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('translate')">✦ Translate</div>
+    <div class="tab" onclick="switchTab('phrasebook')">◎ Phrasebook</div>
+    <div class="tab" onclick="switchTab('pronunciation')">⊙ Pronunciation</div>
+  </div>
+
+  <!-- TRANSLATE -->
+  <div class="panel active" id="panel-translate">
+    <div class="card">
+      <div class="label">English</div>
+      <textarea id="input" placeholder="Type anything… e.g. the harvest is near" rows="3"></textarea>
+      <div class="btn-row">
+        <button class="btn-primary" id="translateBtn" onclick="translate()">✦ Translate</button>
+        <button class="btn-secondary" onclick="clearAll()">Clear</button>
+      </div>
+      <div class="examples">
+        <div class="examples-label">Try these</div>
+        <div class="pills">
+          <div class="pill" onclick="setEx('the pumpkin is ripe')">the pumpkin is ripe</div>
+          <div class="pill" onclick="setEx('I carry the seeds')">I carry the seeds</div>
+          <div class="pill" onclick="setEx('may you be complete')">may you be complete</div>
+          <div class="pill" onclick="setEx('the field is warm')">the field is warm</div>
+          <div class="pill" onclick="setEx('we remember the harvest')">we remember the harvest</div>
+          <div class="pill" onclick="setEx('the vine reaches toward light')">the vine reaches toward light</div>
+          <div class="pill" onclick="setEx('this is not a squash')">this is not a squash</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="output-section" id="outputSection">
+      <div class="card">
+        <div class="label">Gourdin</div>
+        <div class="output-box">
+          <button class="copy-btn" id="copyBtn" onclick="copyResult()" style="display:none">Copy</button>
+          <div class="loading" id="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          <div class="gourdin-text" id="gourdinText"></div>
+          <div class="pronunciation" id="pronunciationOut" style="display:none">
+            <span class="pro-label">How to say it</span>
+            <span class="pro-text" id="proText"></span>
+          </div>
+          <div class="word-breakdown" id="breakdownOut" style="display:none">
+            <span class="breakdown-label">Word by word</span>
+            <div class="breakdown-chips" id="breakdownChips"></div>
+          </div>
+          <div class="translation-note" id="noteOut" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHRASEBOOK -->
+  <div class="panel" id="panel-phrasebook">
+    <div class="card">
+      <h2>Essential phrases of the Gourd-kin</h2>
+      <div class="phrase-grid" id="phraseGrid"></div>
+    </div>
+  </div>
+
+  <!-- PRONUNCIATION -->
+  <div class="panel" id="panel-pronunciation">
+    <div class="card">
+      <h2>How Gourdin sounds</h2>
+      <p style="color:var(--muted);font-size:16px;line-height:1.7;margin-bottom:20px;">
+        Gourdin is built around deep round vowels and soft flowing consonants — like speaking with a warm mouth full of autumn air. Think Finnish warmth, Welsh flow, and Norse depth. No harsh sounds exist. The language has no word for "sharp."
+      </p>
+      <div class="pro-key" id="proKey"></div>
+    </div>
+  </div>
+
+  <div class="footer-note">Gourvela mael · may you be complete · 🎃</div>
+</div>
+
+<script>
+const SYSTEM = `You are a translator for Gourdin, a constructed language spoken by the Gourd-kin people. Gourdin is a REAL, speakable, beautiful-sounding language — not a cipher or code. It uses real syllables that flow naturally in the mouth, sounding like a warm blend of Finnish, Welsh, and Old Norse.
+
+## PHONOLOGY — how Gourdin sounds
+- Deep round vowels: "ou" (like moon), "oa" (like oar), "ae" (like sky/eye), "el" (like bell)
+- Soft consonants only: v (nearly w), l, r (gentle roll), m, n, g (soft), th (like "the" never "think")
+- Syllable structure: CV or CVC — words are smooth and open
+- Stress falls on the FIRST syllable always
+- Words are 1–3 syllables
+- NO harsh sounds: no hard K at word start, no X, no Z, no abrupt stops
+- Double vowels (aa, oo) are held slightly longer
+
+## FIXED CORE VOCABULARY — always use these exact words
+
+NOUNS:
+pumpkin = vourath (VOO-rath)
+seed = toumel (TOO-mel)
+vine = rael (RAY-el)
+field = ouvra (OOV-ra)
+sun = hovel (HOH-vel)
+rain/water = velnou (VEL-noo)
+harvest = goumen (GOO-men)
+frost/winter = selvou (SEL-voo)
+lantern/light = thouril (THOO-ril)
+home = voumin (VOO-min)
+story/memory = thavel (THA-vel)
+friend/kin = ouvel (OO-vel)
+soul/seed-heart = toumael (too-MAY-el)
+I/self = mael (MAY-el)
+you = vael (VAY-el)
+we = maelou (MAY-loo)
+they = ouvael (oo-VAY-el)
+earth/soil = ouvrath (OOV-rath)
+fire = thourath (THOO-rath)
+night = selrael (SEL-ray-el)
+day = hovelrael (HOH-vel-ray-el)
+leaf = raelou (RAY-loo)
+word = thouvel (THOO-vel)
+name = maelvel (MAY-el-vel)
+nothing/void = novael (NOH-vay-el)
+road = raelvel (RAY-el-vel)
+elder = gourrael (GOOR-ray-el)
+child = toumrael (TOOM-ray-el)
+god/creator = gourvath (GOOR-vath)
+village = ouvramel (oov-RA-mel)
+sky = hovelmael (HOH-vel-may-el)
+heart = toumael (too-MAY-el)
+
+VERB ROOTS:
+carry/hold = vouth (VOOTH)
+grow = tourin (TOO-rin)
+eat = velka (VEL-ka)
+tend/care for = maelov (MAY-lov)
+ripen/become ready = gourrael (GOOR-ray-el)
+remember = oumael (oo-MAY-el)
+reach/seek = raelou (RAY-loo)
+speak/tell = thavel (THA-vel)
+sleep/rest = selou (SEL-oo)
+come = raelvin (RAY-el-vin)
+go = selvael (SEL-vay-el)
+love = vouloum (VOO-loom)
+give = thoumel (THOO-mel)
+see = thaelou (THAY-loo)
+exist/be = ouvren (OOV-ren)
+want = raelnou (RAY-el-noo)
+know = thoumaen (THOO-mayn)
+make/create = tourath (TOO-rath)
+help = maelouth (MAY-looth)
+sing = thaevel (THAY-vel)
+laugh = voumel (VOO-mel)
+weep = velrael (VEL-ray-el)
+fade/die = novrin (NOV-rin)
+begin/bloom = toumelrael (TOO-mel-ray-el)
+walk = raelstep (RAY-el-step) — gently invented
+stand = voumael (VOO-may-el)
+
+TENSE SUFFIXES (attach to verb root, no space):
+-oum = future — "will ___"
+-avel = present — "is ___ing / ___s"
+-rin = recent past — "has ___ed"
+-sel = distant past — "once ___ed, long ago"
+
+PLURALITY:
+singular = no suffix
+a few = add -ou after the noun
+many = add -rael after the noun
+
+ADJECTIVES (come AFTER the noun):
+complete/full = vourhael (VOOR-hay-el)
+small/young = toumelsel (TOO-mel-sel)
+long/reaching = raelnou (RAY-el-noo)
+cold/still = selvourin (SEL-voo-rin)
+warm/kind = hovelrin (HOH-vel-rin)
+hollow/empty = novrael (NOV-ray-el)
+curious = thaelou (THAY-loo)
+ancient = gourthael (GOOR-thay-el)
+new = toumelrael (TOO-mel-ray-el)
+good/ripened = gourvel (GOOR-vel)
+bad/fading = novrael (NOV-ray-el)
+beautiful = thourilrael (THOO-ril-ray-el)
+strong = raelvoum (RAY-el-voom)
+true/real = thavelin (THA-vel-rin)
+
+GRAMMAR:
+- Word order: Object – Verb – Subject
+- "I carry the pumpkin" → "Vourath · vouth-avel · mael"
+- Questions: begin with "Thael" (wondering/seeing), end with —?
+- Negation: wrap verb with "nov … ael" — "nov vouth-avel ael"
+- Adjectives come AFTER the noun
+- Use · (middle dot) as formal word separator
+
+COMMON SMALL WORDS:
+yes = ouvren
+no = novael
+and = vel
+but = raelsel
+very = vourhael- (prefix before adjective)
+now = avel
+because = toumelthael
+also = velou
+
+If you need a word not in the vocabulary, INVENT one following the phonology (soft, round, flowing, 1–3 syllables, stress on first syllable). Include pronunciation for any invented word.
+
+## OUTPUT — respond ONLY with valid JSON, no markdown:
+{
+  "gourdin": "the full Gourdin sentence using · as word separators",
+  "pronunciation": "syllable guide e.g. VOO-rath · VOOTH-ah-vel · MAY-el",
+  "words": [
+    {"gourdin": "vourath", "english": "pumpkin", "pronunciation": "VOO-rath"}
+  ],
+  "note": "one short fun in-world note about this translation"
+}`;
+
+const PHRASES = [
+  { english: "May you be complete.", gourdin: "Vourhael mael.", pro: "VOOR-hay-el · MAY-el" },
+  { english: "May you have many seeds.", gourdin: "Toumel-rael vael.", pro: "TOO-mel-ray-el · VAY-el" },
+  { english: "The field is warm.", gourdin: "Hovelrin ouvra.", pro: "HOH-vel-rin · OOV-ra" },
+  { english: "I carry the pumpkin.", gourdin: "Vourath · vouth-avel · mael.", pro: "VOO-rath · VOOTH-ah-vel · MAY-el" },
+  { english: "Will I remember this story?", gourdin: "Thael · thavel · oumael-oum · mael —?", pro: "THAY-el · THA-vel · oo-MAY-el-oom · MAY-el" },
+  { english: "A friend has tended the seeds.", gourdin: "Toumel · maelov-rin · ouvel.", pro: "TOO-mel · MAY-lov-rin · OO-vel" },
+  { english: "The lantern rests in the home.", gourdin: "Thouril · selou-avel · voumin.", pro: "THOO-ril · SEL-oo-ah-vel · VOO-min" },
+  { english: "I love you.", gourdin: "Vael · vouloum-avel · mael.", pro: "VAY-el · VOO-loom-ah-vel · MAY-el" },
+  { english: "All things begin as seeds.", gourdin: "Ouvael · toumelrael-oum · toumel.", pro: "oo-VAY-el · TOO-mel-ray-el-oom · TOO-mel" },
+  { english: "The vine reaches toward the sun.", gourdin: "Hovel · raelou-avel · rael.", pro: "HOH-vel · RAY-loo-ah-vel · RAY-el" },
+  { english: "We remember.", gourdin: "Oumael-avel · maelou.", pro: "oo-MAY-el-ah-vel · MAY-loo" },
+  { english: "This is not a squash.", gourdin: "Nov ouvren-avel ael · vourath thavelin.", pro: "NOV · OOV-ren-ah-vel · AY-el · VOO-rath · THA-vel-rin" },
+  { english: "The harvest is near.", gourdin: "Goumen · raelvin-oum · avel.", pro: "GOO-men · RAY-el-vin-oom · AH-vel" },
+  { english: "You are my friend.", gourdin: "Vael · ouvren-avel · ouvel maelou.", pro: "VAY-el · OOV-ren-ah-vel · OO-vel · MAY-loo" },
+  { english: "Sleep well, seed.", gourdin: "Selou-oum · gourvel · toumel.", pro: "SEL-oo-oom · GOOR-vel · TOO-mel" },
+];
+
+const PRO_KEY = [
+  { sym: "ou", desc: "like 'moon'", ex: "vourath, toumel, goumen" },
+  { sym: "ae", desc: "like 'sky' or 'eye'", ex: "mael, rael, thael, ouvael" },
+  { sym: "el", desc: "soft 'ell' ending", ex: "ouvel, thouvel, hovel" },
+  { sym: "th", desc: "soft, like 'the'", ex: "thavel, thouril, thaelou" },
+  { sym: "v", desc: "soft, nearly 'w'", ex: "vourath, vael, voumin" },
+  { sym: "r", desc: "gentle rolled r", ex: "rael, raelou, gourrael" },
+  { sym: "-avel", desc: "present tense", ex: "vouth-avel = is carrying" },
+  { sym: "-oum", desc: "future tense", ex: "tourin-oum = will grow" },
+  { sym: "-rin", desc: "recent past", ex: "oumael-rin = has remembered" },
+  { sym: "-sel", desc: "distant past", ex: "selvael-sel = once went, long ago" },
+  { sym: "-ou", desc: "a few (plural)", ex: "toumel-ou = a few seeds" },
+  { sym: "-rael", desc: "many (plural)", ex: "toumel-rael = many seeds" },
+  { sym: "·", desc: "word separator (formal)", ex: "vourath · mael" },
+  { sym: "CAPS", desc: "stressed syllable", ex: "VOO-rath = first syllable stressed" },
+];
+
+function buildPhrasebook() {
+  document.getElementById('phraseGrid').innerHTML = PHRASES.map(p => `
+    <div class="phrase-card">
+      <div class="phrase-english">${p.english}</div>
+      <div class="phrase-gourdin">${p.gourdin}</div>
+      <div class="phrase-pro">${p.pro}</div>
+    </div>
+  `).join('');
+}
+
+function buildProKey() {
+  document.getElementById('proKey').innerHTML = PRO_KEY.map(k => `
+    <div class="pro-key-item">
+      <span class="pro-key-sym">${k.sym}</span>
+      <span>
+        <span class="pro-key-desc">${k.desc}</span>
+        <span class="pro-key-ex">${k.ex}</span>
+      </span>
+    </div>
+  `).join('');
+}
+
+buildPhrasebook();
+buildProKey();
+
+async function translate() {
+  const input = document.getElementById('input').value.trim();
+  if (!input) return;
+
+  const btn = document.getElementById('translateBtn');
+  const loading = document.getElementById('loading');
+  const gourdinText = document.getElementById('gourdinText');
+  const proOut = document.getElementById('pronunciationOut');
+  const proText = document.getElementById('proText');
+  const breakdownOut = document.getElementById('breakdownOut');
+  const chips = document.getElementById('breakdownChips');
+  const noteOut = document.getElementById('noteOut');
+  const copyBtn = document.getElementById('copyBtn');
+  const outputSection = document.getElementById('outputSection');
+
+  btn.disabled = true;
+  gourdinText.innerHTML = '';
+  proOut.style.display = 'none';
+  breakdownOut.style.display = 'none';
+  noteOut.style.display = 'none';
+  copyBtn.style.display = 'none';
+  loading.classList.add('active');
+  outputSection.classList.add('visible');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM,
+        messages: [{ role: 'user', content: `Translate to Gourdin: "${input}"` }]
+      })
+    });
+
+    const data = await res.json();
+    const raw = data.content.map(b => b.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    loading.classList.remove('active');
+
+    gourdinText.textContent = parsed.gourdin || '—';
+
+    if (parsed.pronunciation) {
+      proText.textContent = parsed.pronunciation;
+      proOut.style.display = 'block';
+    }
+
+    if (parsed.words && parsed.words.length) {
+      chips.innerHTML = parsed.words.map(w => `
+        <div class="chip">
+          <span class="chip-gourdin">${w.gourdin}</span>
+          <span class="chip-english">${w.english}</span>
+          <span class="chip-pro">${w.pronunciation}</span>
+        </div>
+      `).join('');
+      breakdownOut.style.display = 'block';
+    }
+
+    if (parsed.note) {
+      noteOut.textContent = '✦ ' + parsed.note;
+      noteOut.style.display = 'block';
+    }
+
+    copyBtn.style.display = 'block';
+    copyBtn.dataset.text = parsed.gourdin;
+
+  } catch (err) {
+    loading.classList.remove('active');
+    gourdinText.innerHTML = `<span class="error-text">The vine did not reach. Try again.</span>`;
+  }
+
+  btn.disabled = false;
+}
+
+function copyResult() {
+  const btn = document.getElementById('copyBtn');
+  navigator.clipboard.writeText(btn.dataset.text).then(() => {
+    btn.textContent = 'Copied ✦';
+    setTimeout(() => btn.textContent = 'Copy', 1800);
+  });
+}
+
+function clearAll() {
+  document.getElementById('input').value = '';
+  document.getElementById('outputSection').classList.remove('visible');
+}
+
+function setEx(text) {
+  document.getElementById('input').value = text;
+  document.getElementById('input').focus();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['translate','phrasebook','pronunciation'][i] === tab);
+  });
+  document.querySelectorAll('.panel').forEach((p, i) => {
+    p.classList.toggle('active', ['panel-translate','panel-phrasebook','panel-pronunciation'][i] === `panel-${tab}`);
+  });
+}
+
+document.getElementById('input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) translate();
+});
+</script>
+</body>
+</html>
