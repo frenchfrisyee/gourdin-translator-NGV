@@ -1,6 +1,7 @@
 <script>
-alert("WORKING VERSION");
+alert("Gourdin Translator Loaded!");
 
+// Letter → Gourdin mapping
 const map = {
   a:"g", b:"t", c:"r", d:"v", e:"e", f:"th", g:"o",
   h:"h", i:"i", j:"j", k:"k", l:"l", m:"m", n:"n",
@@ -8,17 +9,18 @@ const map = {
   u:"oo", v:"ve", w:"w", x:"x", y:"y", z:"z"
 };
 
+// Convert a word
 function convertWord(word) {
   return word.split("").map(l => map[l] || l).join("");
 }
 
-// 👇 THIS is what your button calls
-window.translate = function() {
+// The function your button calls
+function translate() {
   const inputEl = document.getElementById("input");
   const outputEl = document.getElementById("gourdinText");
 
   if (!inputEl || !outputEl) {
-    console.error("Missing elements");
+    console.error("Missing elements in HTML: input or output");
     return;
   }
 
@@ -31,12 +33,17 @@ window.translate = function() {
 
   outputEl.innerText = result;
 
+  // optional: reveal output section if you have one
   const outputSection = document.getElementById("outputSection");
   if (outputSection) outputSection.classList.add("visible");
-};
+}
 
-// ENTER KEY (optional)
+// Optional: enter key triggers translate
 document.addEventListener("keydown", e => {
-  if (e.key === "Enter") window.translate();
+  if (e.key === "Enter") translate();
 });
+  <button id="translateBtn" onclick="translate()">Translate</button>
+  <textarea id="input"></textarea>
+<div id="gourdinText"></div>
+<div id="outputSection"></div>
 </script>
