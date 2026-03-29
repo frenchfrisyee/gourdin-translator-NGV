@@ -1,38 +1,37 @@
 <script>
-// SIMPLE LETTER MAP (edit this however you want)
-const map = {
-  a:"g", b:"t", c:"r", d:"v", e:"e", f:"th", g:"o",
-  h:"h", i:"i", j:"j", k:"k", l:"l", m:"m", n:"n",
-  o:"u", p:"p", q:"q", r:"ra", s:"s", t:"ta",
-  u:"oo", v:"ve", w:"w", x:"x", y:"y", z:"z"
-};
 alert("NEW VERSION LOADED");
-// convert ONE word
-function convertWord(word) {
-  return word.split("").map(letter => map[letter] || letter).join("");
-}
 
-// MAIN TRANSLATE FUNCTION (GLOBAL = IMPORTANT)
-window.translate = function() {
-  const input = document.getElementById("input").value.toLowerCase();
+document.addEventListener("DOMContentLoaded", () => {
 
-  const result = input
-    .split(/\s+/)
-    .map(word => convertWord(word))
-    .join(" · ");
+  const map = {
+    a:"g", b:"t", c:"r", d:"v", e:"e", f:"th", g:"o",
+    h:"h", i:"i", j:"j", k:"k", l:"l", m:"m", n:"n",
+    o:"u", p:"p", q:"q", r:"ra", s:"s", t:"ta",
+    u:"oo", v:"ve", w:"w", x:"x", y:"y", z:"z"
+  };
 
-  document.getElementById("gourdinText").innerText = result;
+  function convertWord(word) {
+    return word.split("").map(l => map[l] || l).join("");
+  }
 
-  // show output section if you have one
-  const outputSection = document.getElementById("outputSection");
-  if (outputSection) outputSection.classList.add("visible");
-};
+  window.translate = function() {
+    const input = document.getElementById("input").value.toLowerCase();
 
-// FIX BUTTON (NO onclick needed)
-document.getElementById("translateBtn").addEventListener("click", window.translate);
+    const result = input
+      .split(/\s+/)
+      .map(convertWord)
+      .join(" · ");
 
-// ENTER KEY
-document.getElementById("input").addEventListener("keydown", e => {
-  if (e.key === "Enter") window.translate();
+    document.getElementById("gourdinText").innerText = result;
+
+    const outputSection = document.getElementById("outputSection");
+    if (outputSection) outputSection.classList.add("visible");
+  };
+
+  const btn = document.getElementById("translateBtn");
+  if (btn) {
+    btn.addEventListener("click", window.translate);
+  }
+
 });
 </script>
